@@ -1,4 +1,3 @@
-import { JWT_KEY } from "../config.js";
 import jwt from "jsonwebtoken";
 
 /**
@@ -10,7 +9,7 @@ export function generateToken(payload) {
     return new Promise((resolve, reject) => {
         jwt.sign(
             payload,
-            JWT_KEY,
+            process.env.JWT_KEY,
             { expiresIn: "1d" },
             (err, token) => {
                 if (err) reject(err);
