@@ -6,8 +6,7 @@ import 'dotenv/config.js'
 
 app.listen(process.env.PORT, async () => {
     Cinfo(`Server running on port ${process.env.PORT}`, nMod.app);
-    Cinfo(`Jwt`, process.env.JWT_KEY);
-    
+
     await connectDB();
     await jobs();
 });
