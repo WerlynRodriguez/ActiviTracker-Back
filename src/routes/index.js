@@ -12,8 +12,8 @@ router.post("/register", register);
 router.get("/logout", logout);
 
 // User
-router.get("/getInfo", TokenRequired, getInfo);
-router.get("/allInfo", TokenRequired, getInfoAll);
+router.post("/getInfo", TokenRequired, getInfo);
+router.post("/allInfo", TokenRequired, getInfoAll);
 router.put("/setStatus", TokenRequired, setActive);
 router.delete("/delete", TokenRequired, deleteAccount);
 
