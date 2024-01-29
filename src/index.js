@@ -5,9 +5,9 @@ import { Cinfo, nMod } from "./libs/console.js";
 import 'dotenv/config.js'
 
 app.listen(process.env.PORT, async () => {
-    await connectDB();
-    await jobs();
-    
     Cinfo(`Server running on port ${process.env.PORT}`, nMod.app);
     Cinfo(`Jwt`, process.env.JWT_KEY);
+    
+    await connectDB();
+    await jobs();
 });
