@@ -27,7 +27,7 @@ export const register = async (req, res) => {
         const token = await generateToken({ id: userSaved._id, username: userSaved.username });
 
         res.cookie("token", token);
-        res.sendStatus(200);
+        res.status(201).json({ username: userSaved.username });
 
     } catch (error) {
         Cerror(error, nMod.cont);
@@ -59,7 +59,7 @@ export const login = async (req, res) => {
         const token = await generateToken({ id: user._id, username: user.username });
 
         res.cookie("token", token);
-        res.sendStatus(200);
+        res.status(200).json({ username: user.username });
     } catch (error) {
         Cerror(error, nMod.cont);
         res.status(500).json({ message: error.message });
@@ -73,5 +73,5 @@ export const login = async (req, res) => {
  */
 export const logout = (req, res) => {
     res.clearCookie("token");
-    res.sendStatus(200);
+    res.status(200).json({ message: "Logged out" });
 }
