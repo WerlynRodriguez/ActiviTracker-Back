@@ -27,7 +27,8 @@ export const register = async (req, res) => {
         const token = await generateToken({ id: userSaved._id, username: userSaved.username });
 
         res.cookie("token", token, {
-            sameSite: "none"
+            sameSite: "none",
+            secure: true
         });
         res.status(201).json({ username: userSaved.username });
 
@@ -61,7 +62,8 @@ export const login = async (req, res) => {
         const token = await generateToken({ id: user._id, username: user.username });
 
         res.cookie("token", token, {
-            sameSite: "none"
+            sameSite: "none",
+            secure: true
         });
         res.status(200).json({ username: user.username });
     } catch (error) {
@@ -77,7 +79,8 @@ export const login = async (req, res) => {
  */
 export const logout = (req, res) => {
     res.clearCookie("token", {
-        sameSite: "none"
+        sameSite: "none",
+        secure: true
     });
     res.status(200).json({ message: "Logged out" });
 }
