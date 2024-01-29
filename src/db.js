@@ -8,5 +8,7 @@ export const connectDB = async () => {
         Csuccess(`Connected at ${conn.connection.host}`, nMod.db);
     } catch (error) {
         Cerror(error.message, nMod.db);
+        Cerror(`User: ${MONGO_USER} | Pass: ${MONGO_PASS}`, nMod.db);
+        process.exit(1);
     }
 }
