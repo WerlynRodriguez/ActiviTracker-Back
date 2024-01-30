@@ -23,58 +23,42 @@ function getTimeActive(user) {
 }
 
 /**
- * Get my info
+ * Get info of the user, with pagination in each sesion day
  * @param {Express.Request} req
  * @param {Express.Response} res
  */
 export const getInfo = async (req, res) => {
-    const { id: idUser } = req.body;
-    const { query } = req;
-    let id = idUser || req.userToken.id;
+    let id = req.query.id || req.userToken.id;
     let user = null;
 
-    if (!query.page)  {
-        user = await User.findById(id).populate("currentSesionDay").select("-sesionDays");
+    const page = req.query.page || 1;
+    const limit = 10;
 
-        if (!user) return res.status(404).json({ message: "User not found" });
+    // Get the user with sesion days pagination, and exclude sesions from the population
+    user = await User.findById(id).populate({
+        path: "sesionDays",
+        options: {
+            skip: (page - 1) * limit,
+            limit,
+            sort: { date: -1 }
+        },
+    }).select("-currentSesionDay -lastTime");
 
-        res.status(200).json({
-            id: user._id,
-            username: user.username,
-            active: user.active,
-            time: getTimeActive(user)
-        });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    } else {
-        const page = query.page || 1;
-        const limit = 10;
-
-        // Get the user with sesion days pagination, and exclude sesions from the population
-        user = await User.findById(id).populate({
-            path: "sesionDays",
-            options: {
-                skip: (page - 1) * limit,
-                limit,
-                sort: { date: -1 }
-            },
-        }).select("-currentSesionDay -lastTime");
-
-        if (!user) return res.status(404).json({ message: "User not found" });
-
-        res.status(200).json({
-            id: user._id,
-            username: user.username,
-            sesionDays: user.sesionDays.map(sesionDay => ({
-                id: sesionDay._id,
-                date: sesionDay.date,
-                time: secondsToTimeClient(sesionDay.time)
-            }))
-        });
-    }
+    res.status(200).json({
+        id: user._id,
+        username: user.username,
+        sesionDays: user.sesionDays.map(sesionDay => ({
+            id: sesionDay._id,
+            date: sesionDay.date,
+            time: secondsToTimeClient(sesionDay.time)
+        }))
+    });
 }
 
 /**
- * Get all info of all users with pagination
+ * Get all info of all users with pagination (used in Dashboard)
  * @param {Express.Request} req
  * @param {Express.Response} res
  */
@@ -88,14 +72,27 @@ export const getInfoAll = async (req, res) => {
         .populate("currentSesionDay")
         .select("-sesionDays")
         .skip((page - 1) * limit)
-        .limit(limit);
+        .limit(limit)
+        .sort({ username: 1 });
 
-    res.status(200).json(users.map(user => ({
-        id: user._id,
-        username: user.username,
-        active: user.active,
-        time: getTimeActive(user)
-    })));
+    const me = await User.findById(id).select("-username");
+
+    res.status(200).json({
+        me: {
+            active: me.active,
+            time: getTimeActive(me)
+        },
+        pagination: {
+            next: users.length === limit ? true : false,
+            page: page
+        },
+        users: users.map(user => ({
+            id: user._id,
+            active: user.active,
+            time: getTimeActive(user),
+            username: user.username
+        }))
+    });
 }
 
 /**
@@ -137,10 +134,9 @@ export async function deactivateUser(id, user) {
 
     // Calculate the time the user has been active
     // user.lastTime is the last time he was active, Example: ("2024-01-27T06:23:06.638Z")
-    const time = dateDiffInSeconds(user.lastTime, dateNow);
-
+    let time = dateDiffInSeconds(user.lastTime, dateNow);
     let sesionDay = null
-
+    
     // Check if he has a sesion day
     if (!user.currentSesionDay) {
         // If he doesn't have a sesion day, create one

@@ -8,7 +8,7 @@ export const TokenRequired = async (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_KEY, (err, userToken) => {
         if (err) {
-            Cerror(err.message, nMod.midd);
+            Cerror(err, nMod.midd);
             return res.status(401).json({ message: "Unauthorized" });
         }
 

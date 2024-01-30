@@ -9,8 +9,8 @@ const app = Express();
 app.use(morgan("dev"));
 app.use(Express.json());
 app.use(cookieParser());
-app.use(Cors({ 
-    credentials: true,
+app.use(Cors({
+    credentials: true, 
     origin: "http://localhost:5173"
 }));
 app.use('/api', routes);
