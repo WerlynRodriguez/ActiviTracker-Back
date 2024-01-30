@@ -214,7 +214,7 @@ export async function deactivateUser(id, user) {
     user.currentSesionDay = sesionDay._id;
     user.lastTime = null;
 
-    return time;
+    return sesionDay.time;
 }
 
 /**
