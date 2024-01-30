@@ -3,8 +3,9 @@ import User from "../models/users.model.js"
 import SesionDay from "../models/sesionDay.model.js";
 import Sesion from "../models/sesion.model.js";
 import { dateDiffInSeconds, getDateISO, getDateTZ, getTimeISO, secondsToTimeClient } from "../libs/time.js";
+import { Cerror, nMod } from "../libs/console.js";
 
-function getTimeActive(user) {
+function getTimeActive(user, convert = true) {
     let time = 0;
     const dateNow = getDateTZ();
 
@@ -19,7 +20,9 @@ function getTimeActive(user) {
         time += user.currentSesionDay.time;
     }
 
-    return secondsToTimeClient(time);
+    if (convert) return secondsToTimeClient(time);
+
+    return time;
 }
 
 /**
@@ -57,6 +60,18 @@ export const getInfo = async (req, res) => {
     });
 }
 
+// The frontend needs:
+/*
+export type DashboardData = {
+    greeting: Greeting;
+    me: Omit<UserDashboard, 'id'>;
+    pagination: Pagination;
+    users: UserDashboard[];
+    activeUsers: number;
+    maxTimeUser: string;
+}
+*/
+
 /**
  * Get all info of all users with pagination (used in Dashboard)
  * @param {Express.Request} req
@@ -73,25 +88,47 @@ export const getInfoAll = async (req, res) => {
         .select("-sesionDays")
         .skip((page - 1) * limit)
         .limit(limit)
-        .sort({ username: 1 });
+        .sort({ username: 1 })
+        .then(users => {
+            return users.map(user => ({
+                id: user._id,
+                username: user.username,
+                active: user.active,
+                time: getTimeActive(user, false)
+            }));
+        });
 
-    const me = await User.findById(id).select("-username");
+    const me = await User.findById(id).populate("currentSesionDay").select("-sesionDays");
+    const activeUsers = await User.find({ active: true }).countDocuments()
+
+    // Get the user with the most time active
+    let maxTime = 0;
+    let maxTimeUser = "";
+
+    for (let user of users) {
+        if (user.time > maxTime) {
+            maxTime = user.time;
+            maxTimeUser = user.username;
+        }
+        // Convert time to client format
+        user.time = secondsToTimeClient(user.time);
+    }
+
+    const meTime = getTimeActive(me, false);
+    if (meTime > maxTime) maxTimeUser = me.username;
 
     res.status(200).json({
         me: {
             active: me.active,
-            time: getTimeActive(me)
+            time: secondsToTimeClient(meTime)
         },
         pagination: {
             next: users.length === limit ? true : false,
             page: page
         },
-        users: users.map(user => ({
-            id: user._id,
-            active: user.active,
-            time: getTimeActive(user),
-            username: user.username
-        }))
+        users,
+        activeUsers,
+        maxTimeUser
     });
 }
 
@@ -200,7 +237,7 @@ export const deleteAccount = async (req, res) => {
         res.sendStatus(200);
 
     } catch (error) {
-        console.log(error);
+        Cerror(error, nMod.app);
         res.sendStatus(500);
     }
 }
