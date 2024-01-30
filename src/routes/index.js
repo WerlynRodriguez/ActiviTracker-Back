@@ -10,6 +10,7 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 router.get("/logout", logout);
+router.get("/verify", TokenRequired, (req, res) => res.json({ username: req.userToken.username }));
 
 // User
 router.get("/getInfo", TokenRequired, getInfo);

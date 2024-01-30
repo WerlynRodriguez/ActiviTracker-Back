@@ -19,3 +19,16 @@ export function generateToken(payload) {
         );
     });
 }
+
+/**
+ * Check if a token is valid
+ */
+export function verifyToken(token) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.JWT_KEY, (err, userToken) => {
+            if (err) reject(err);
+
+            resolve(userToken);
+        });
+    });
+}
