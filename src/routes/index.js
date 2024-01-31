@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { deleteAccount, getInfo, getInfoAll, setActive } from "../controllers/user.controller.js";
 import { login, logout, register } from "../controllers/auth.controller.js";
-import { getSesionDay } from "../controllers/sesion.controller.js";
+import { getSesionsDays } from "../controllers/sesion.controller.js";
 import { TokenRequired } from "../middlewares/TokenValid.js";
 
 const router = Router();
@@ -19,6 +19,6 @@ router.put("/setStatus", TokenRequired, setActive);
 router.delete("/delete", TokenRequired, deleteAccount);
 
 // Sesion Day
-router.get("/sesionDay", TokenRequired, getSesionDay);
+router.get("/sesionsDays", TokenRequired, getSesionsDays);
 
 export default router;

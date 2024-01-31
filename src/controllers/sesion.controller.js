@@ -1,25 +1,40 @@
+import { secondsToTimeClient } from "../libs/time.js";
 import SesionDay from "../models/sesionDay.model.js";
 
 /**
- * Get a sesion Day
+ * Get all sesions days og the user in a Month and Year
  * @param {Express.Request} req
  * @param {Express.Response} res
  */
-export async function getSesionDay(req, res) {
-    const { idSD, idU } = req.body;
-    const idUser = idU || req.userToken.id;
+export async function getSesionsDays(req, res) {
+    const id = req.query.id || req.userToken.id;
+    const month = req.query.month;
+    const year = req.query.year;
 
-    if (!idSD) return res.status(400).json({ message: "No sesion day id provided" });
+    if (!month || !year) return res.status(400).json({ message: "No month or year provided" });
 
-    // Search the sesion day in the user's sesion days
-    const sesionDay = await SesionDay.findOne({ _id: idSD, user: idUser })
-    .populate("sesions", {
-        // Exclude the sesion day from the population
-        sesionDay: 0,
-        __v: 0
-    }).select("-__v");
+    const sesionsDays = await SesionDay.find({ 
+        user: id,
+        date: { $gte: `${month}/1/${year}`, $lte: `${month}/31/${year}` }
+    })
+        .sort("date")
+        .select("id date time sesions")
+        // Populate sesions, sort by "start" and deselect "sesionDay and __v"
+        .populate({
+            path: "sesions",
+            options: { sort: { start: 1 } },
+            select: "-sesionDay -__v"
+        });
 
-    if (!sesionDay) return res.status(404).json({ message: "Sesion day not found" });
-
-    res.status(200).json(sesionDay);
+    res.status(200).json(sesionsDays.map(sesionDay => ({
+        id: sesionDay._id,
+        date: sesionDay.date,
+        time: secondsToTimeClient(sesionDay.time),
+        sesions: sesionDay.sesions.map(sesion => ({
+            id: sesion._id,
+            start: sesion.start,
+            end: sesion.end,
+            time: secondsToTimeClient(sesion.time)
+        }))
+    })));
 }

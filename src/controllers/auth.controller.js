@@ -62,8 +62,8 @@ export const login = async (req, res) => {
         const token = await generateToken({ id: user._id, username: user.username });
 
         res.cookie("token", token, {
-            sameSite: "none",
-            secure: true
+            // sameSite: "none",
+            // secure: true
         });
         res.status(200).json({ username: user.username });
     } catch (error) {

@@ -26,37 +26,22 @@ function getTimeActive(user, convert = true) {
 }
 
 /**
- * Get info of the user, with pagination in each sesion day
+ * Get info of the user
  * @param {Express.Request} req
  * @param {Express.Response} res
  */
 export const getInfo = async (req, res) => {
-    let id = req.query.id || req.userToken.id;
-    let user = null;
-
-    const page = req.query.page || 1;
-    const limit = 10;
+    const id = req.query.id || req.userToken.id;
 
     // Get the user with sesion days pagination, and exclude sesions from the population
-    user = await User.findById(id).populate({
-        path: "sesionDays",
-        options: {
-            skip: (page - 1) * limit,
-            limit,
-            sort: { date: -1 }
-        },
-    }).select("-currentSesionDay -lastTime");
+    const user = await User.findById(id).populate().select("-currentSesionDay -lastTime -sesionDays");
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({
         id: user._id,
         username: user.username,
-        sesionDays: user.sesionDays.map(sesionDay => ({
-            id: sesionDay._id,
-            date: sesionDay.date,
-            time: secondsToTimeClient(sesionDay.time)
-        }))
+        active: user.active
     });
 }
 
