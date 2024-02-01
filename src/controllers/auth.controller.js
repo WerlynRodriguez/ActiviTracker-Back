@@ -30,7 +30,7 @@ export const register = async (req, res) => {
             sameSite: "none",
             secure: true
         });
-        res.status(201).json({ id: userSaved._id });
+        res.status(201).json({ id: userSaved._id, username: userSaved.username });
 
     } catch (error) {
         Cerror(error, nMod.cont);
@@ -65,7 +65,7 @@ export const login = async (req, res) => {
             sameSite: "none",
             secure: true
         });
-        res.status(200).json({ id: user._id });
+        res.status(200).json({ id: user._id, username: user.username });
     } catch (error) {
         Cerror(error, nMod.cont);
         res.status(500).json({ message: error.message });
