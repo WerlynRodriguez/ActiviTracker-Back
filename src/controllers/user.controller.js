@@ -23,7 +23,7 @@ function getTimeActive(user) {
     // If the user has a current sesion day
     if (user.currentSesionDay) {
         // Add the time of the current sesion day
-        time.plus(Duration.fromISOTime(user.currentSesionDay.time));
+        time = time.plus(Duration.fromISOTime(user.currentSesionDay.time));
     }
 
     return time;
