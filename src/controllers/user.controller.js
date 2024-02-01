@@ -11,12 +11,13 @@ import { DateTime, Duration } from "luxon";
  * @returns {Duration}
  */
 function getTimeActive(user) {
-    const time = Duration.fromObject({ hours: 0, minutes: 0, seconds: 0 });
+    let time = Duration.fromObject({ hours: 0, minutes: 0, seconds: 0 });
     const dateNow = DateTime.now().setZone("America/Managua");
 
     // Calculate the time the user has been active
     if (user.active) {
-        time.plus(dateNow.diff(DateTime.fromJSDate(user.lastTime).setZone("America/Managua"), ["hours", "minutes", "seconds"]));
+        const lastTime = DateTime.fromJSDate(user.lastTime).setZone("America/Managua");
+        time = dateNow.diff(lastTime, ["hours", "minutes", "seconds"]);
     }
 
     // If the user has a current sesion day
