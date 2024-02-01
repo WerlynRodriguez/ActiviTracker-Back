@@ -130,7 +130,6 @@ export const setActive = async (req, res) => {
     }
 
     const totalTime = await deactivateUser(user);
-    console.log("totalTime", totalTime);
     await user.save();
 
     res.status(200).json({ 
@@ -146,14 +145,12 @@ export const setActive = async (req, res) => {
  */
 export async function deactivateUser(user, dateNow = DateTime.now().setZone("America/Managua")) {
     const lastTime = DateTime.fromJSDate(user.lastTime).setZone("America/Managua");
-    console.log("lastTime", lastTime);
 
     // Calculate the time the user has been active
     // user.lastTime is the last time he was active, Example: ("2024-01-27T06:23:06.638Z")
     let timeActive = dateNow.diff(lastTime, ["hours", "minutes", "seconds"]);
     let sesionDay = null
     const timeActivoISO = timeActive.toISOTime({ suppressMilliseconds: true });
-    console.log("timeActivoISO", timeActivoISO);
     
     // Check if he has a sesion day
     if (!user.currentSesionDay) {
@@ -178,13 +175,12 @@ export async function deactivateUser(user, dateNow = DateTime.now().setZone("Ame
     }
 
     // Create a new sesion if the user has been active for more than 30 minutes
-    const minSesionTime = 30;
+    const minSesionTime = 1;
     const timeActiveMinutes = timeActive.as("minutes").toFixed(0);
-    console.log("timeActiveMinutes", timeActiveMinutes);
 
     if (timeActiveMinutes >= minSesionTime) {
         const sesion = await new Sesion({
-            start: lastTime.toJSDate(),
+            start: lastTime.toISOTime({ suppressMilliseconds: true }),
             end: dateNow.toISOTime({ suppressMilliseconds: true }),
             time: timeActivoISO,
             sesionDay: sesionDay._id
