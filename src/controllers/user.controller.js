@@ -214,7 +214,10 @@ export const deleteAccount = async (req, res) => {
         // Delete the user
         await user.deleteOne();
 
-        res.clearCookie("token");
+        res.clearCookie("token", {
+            sameSite: "none",
+            secure: true
+        });
         res.sendStatus(200);
 
     } catch (error) {
