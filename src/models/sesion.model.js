@@ -11,9 +11,9 @@ const sesionSch = new Schema({
         type: String,
         required: true
     },
-    // Total time in seconds (format example: ss)
+    // Total time active in this session
     time: {
-        type: Number,
+        type: String,
         required: true
     },
     sesionDay: {

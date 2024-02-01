@@ -25,7 +25,7 @@ const userSch = new Schema({
     },
     // Last time the user activated the account
     lastTime: {
-        type: String,
+        type: Date,
         default: null
     },
     sesionDays: [{

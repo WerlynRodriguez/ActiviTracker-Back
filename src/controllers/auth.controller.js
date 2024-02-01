@@ -30,7 +30,7 @@ export const register = async (req, res) => {
             sameSite: "none",
             secure: true
         });
-        res.status(201).json({ username: userSaved.username });
+        res.status(201).json({ id: userSaved._id });
 
     } catch (error) {
         Cerror(error, nMod.cont);
@@ -62,10 +62,10 @@ export const login = async (req, res) => {
         const token = await generateToken({ id: user._id, username: user.username });
 
         res.cookie("token", token, {
-            sameSite: "none",
-            secure: true
+            // sameSite: "none",
+            // secure: true
         });
-        res.status(200).json({ username: user.username });
+        res.status(200).json({ id: user._id });
     } catch (error) {
         Cerror(error, nMod.cont);
         res.status(500).json({ message: error.message });

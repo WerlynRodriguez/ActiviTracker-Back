@@ -3,15 +3,15 @@ import Sesion from "./sesion.model.js";
 import { Cerror, nMod } from "../libs/console.js";
 
 const sesionDaySch = new Schema({
-    // The date of the sesion day (format example: yyyy-mm-dd)
+    // The date of the sesion day
     date: {
-        type: String,
+        type: Date,
         required: true
     },
-    // All time the user has been active in seconds (format example: ss)
+    // All time the user has been active in this day
     time: {
-        type: Number,
-        required: true,
+        type: String,
+        required: true
     },
     user: {
         type: Schema.Types.ObjectId,
