@@ -3,6 +3,7 @@ import { deleteAccount, getInfo, getInfoAll, setActive } from "../controllers/us
 import { login, logout, register } from "../controllers/auth.controller.js";
 import { getSesionsDays } from "../controllers/sesion.controller.js";
 import { TokenRequired } from "../middlewares/TokenValid.js";
+import { desactivateUsers_job } from "../controllers/jobs.controller.js";
 
 const router = Router();
 
@@ -20,5 +21,8 @@ router.delete("/delete", TokenRequired, deleteAccount);
 
 // Sesion Day
 router.get("/sesionsDays", TokenRequired, getSesionsDays);
+
+// Jobs
+router.post("/jobs/desactivateUsers", desactivateUsers_job);
 
 export default router;

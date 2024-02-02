@@ -11,7 +11,7 @@ export const Csuccess = (message, emmiter) => console.log(`${chalk.green(`[✔ $
 // names Modules
 export const nMod = {
     db: 'MongoDB',
-    job: 'CRON',
+    job: 'Jobs',
     app: 'ActiviTracker',
     cont: 'Controller',
     midd: 'Middleware',

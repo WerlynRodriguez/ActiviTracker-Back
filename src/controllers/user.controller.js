@@ -119,6 +119,12 @@ export const getInfoAll = async (req, res) => {
 export const setActive = async (req, res) => {
     const { id } = req.userToken;
 
+    // If the time is 11:59 throw an error
+    const dateNow = getTimeZoneDate()
+    if (dateNow.getHours() === 11 && dateNow.getMinutes() === 59) {
+        return res.status(403).json({ message: "Sorry, maintenance time" });
+    }
+
     try {
         let user = await User.findById(id).select("-username")
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -127,7 +133,7 @@ export const setActive = async (req, res) => {
             // If user wants to activate, sets lastTime to now (lastime type is Date)
             await User.findByIdAndUpdate(id, {
                 active: true,
-                lastTime: getTimeZoneDate()
+                lastTime: dateNow
             });
     
             return res.status(200).json({ active: true });

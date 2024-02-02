@@ -1,16 +1,19 @@
-import User from '../models/users.model.js';
-import { deactivateUser } from '../controllers/user.controller.js';
-import { Cerror, Cinfo, Csuccess, nMod } from '../libs/console.js';
+import { Cerror, Cinfo, Csuccess, nMod } from "../libs/console.js";
+import User from "../models/users.model.js";
+import { deactivateUser } from "../controllers/user.controller.js";
 
-// Every day at 0:0
-const time = "0 0 * * *";
-const options = {
-    scheduled: true,
-    timezone: "America/Managua"
-};
+/*
+ * YES!, I know, Cron can do this as a scheduled task, but im using a free hosting and i dont have access to the cron jobs.
+ * But there is a branch with the cron jobs, you can check it out.
+ */
+export const desactivateUsers_job = async (req, res) => {
+    const { pass } = req.body;
 
-// Timezone: America/Managua
-async function CleanActiveUser () {
+    if (pass !== process.env.JOB_PASS) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+    }
+
     Cinfo('Cleaning active users', nMod.job);
 
     try {
@@ -37,13 +40,4 @@ async function CleanActiveUser () {
     } catch (error) {
         Cerror(error, nMod.job);
     }
-}
-
-/*
- * This function is used to clean active users with Cron.
- * But in my case, im using a free server so i can't use cron.
- * (The server is not always on, for save resources, it turns off when no one is using it.)
- * So, i will use fs for save a var called lastTime and compare it with the current day.*/
-export default function () { 
-    cron.schedule(time, CleanActiveUser, options);
 }
