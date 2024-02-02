@@ -45,9 +45,15 @@ export async function getSesionsDays(req, res) {
             id: sesion._id,
             //"start": "13:55:50Z",
             //"end": "18:15:01.342-06:00",
-            start: sesion.start.split(":"),
-            end: sesion.end.split(":"),
+            start: format(sesion.start),
+            end: format(sesion.end),
             time: Duration.fromISOTime(sesion.time).toObject()
         }))
     })));
+}
+
+const format = (time) => {
+    const date = new Date(`December 17, 1995 ${time}`);
+
+    return date.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
 }
