@@ -10,6 +10,7 @@ export const desactivateUsers_job = async (req, res) => {
     const { pass } = req.body;
 
     if (pass !== process.env.JOB_PASS) {
+        Cerror('Unauthorized', nMod.job);
         res.status(401).json({ message: "Unauthorized" });
         return;
     }
@@ -36,8 +37,10 @@ export const desactivateUsers_job = async (req, res) => {
         }
 
         Csuccess('Cleaned active users', nMod.job);
+        return res.status(200).json({ message: "Cleaned active users" });
 
     } catch (error) {
         Cerror(error, nMod.job);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
