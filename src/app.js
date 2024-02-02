@@ -10,8 +10,9 @@ app.use(morgan("dev"));
 app.use(Express.json());
 app.use(cookieParser());
 app.use(Cors({
-    credentials: true, 
-    origin: "http://localhost:5173"
+    credentials: true,
+    // two origins are allowed to access the server (Dev testing)
+    origin: ["http://localhost:3000", "http://localhost:5173"]
 }));
 app.use('/api', routes);
 
