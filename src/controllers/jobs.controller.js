@@ -10,7 +10,8 @@ export const desactivateUsers_job = async (req, res) => {
     const { pass } = req.body;
 
     if (pass !== process.env.JOB_PASS) {
-        Cerror('Unauthorized', nMod.job);
+        console.log(pass, process.env.JOB_PASS);
+        Cerror(new Error('Unauthorized'), nMod.job);
         res.status(401).json({ message: "Unauthorized" });
         return;
     }
