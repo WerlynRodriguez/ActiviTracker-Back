@@ -12,7 +12,10 @@ app.use(cookieParser());
 app.use(Cors({
     credentials: true,
     // two origins are allowed to access the server (Dev testing)
-    origin: ["http://localhost:3000", "http://localhost:5173"]
+    origin: [
+        "https://activi-tracker.vercel.app/", 
+        "https://activitracker-cronjob.vercel.app/"
+    ]
 }));
 app.use('/api', routes);
 
