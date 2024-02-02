@@ -43,8 +43,10 @@ export async function getSesionsDays(req, res) {
         time: Duration.fromISOTime(sesionDay.time).toObject(),
         sesions: sesionDay.sesions.map(sesion => ({
             id: sesion._id,
-            start: sesion.start,
-            end: sesion.end,
+            //"start": "13:55:50Z",
+            //"end": "18:15:01.342-06:00",
+            start: sesion.start.split(":"),
+            end: sesion.end.split(":"),
             time: Duration.fromISOTime(sesion.time).toObject()
         }))
     })));

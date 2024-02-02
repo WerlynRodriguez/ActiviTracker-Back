@@ -192,8 +192,10 @@ export async function deactivateUser(user, dateNow = DateTime.now().setZone("Ame
 
     if (timeActiveMinutes >= minSesionTime) {
         const sesion = await new Sesion({
-            start: lastTime.toISOTime({ suppressMilliseconds: true }),
-            end: dateNow.toISOTime({ suppressMilliseconds: true }),
+            // 13:15:05Z
+            start: lastTime.toISOTime({ suppressMilliseconds: true }).replace("Z", ""),
+            // 18:15:01.342-06:00
+            end: dateNow.toISOTime({ suppressMilliseconds: true }).split(".")[0],
             time: timeActivoISO,
             sesionDay: sesionDay._id
         }).save();
