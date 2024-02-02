@@ -13,6 +13,11 @@ export async function getSesionsDays(req, res) {
 
     if (!month || !year) return res.status(400).json({ message: "No month or year provided" });
 
+    if(month < 1 || month > 12) return res.status(400).json({ message: "Month must be between 1 and 12" });
+    const currentYear = DateTime.local().year;
+    if(year < 1900 || year > currentYear) return res.status(400).json({ message: `Year must be between 1900 and ${currentYear}` });
+    if(year == currentYear && month > DateTime.local().month) return res.status(400).json({ message: "Month is in the future" });
+
     const startDate = DateTime.fromObject({ year, month, day: 1 }).startOf("month").toJSDate();
     const endDate = DateTime.fromObject({ year, month, day: 1 }).endOf("month").toJSDate();
 

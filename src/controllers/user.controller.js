@@ -4,6 +4,7 @@ import SesionDay from "../models/sesionDay.model.js";
 import Sesion from "../models/sesion.model.js";
 import { Cerror, nMod } from "../libs/console.js";
 import { DateTime, Duration } from "luxon";
+import { getTimeZoneDate } from "../libs/time.js";
 
 /**
  * Get the current active time of the user
@@ -16,8 +17,9 @@ function getTimeActive(user) {
 
     // Calculate the time the user has been active
     if (user.active) {
-        const lastTime = DateTime.fromJSDate(user.lastTime).setZone("America/Managua");
+        const lastTime = DateTime.fromJSDate(new Date(user.lastTime)).toUTC();
         time = dateNow.diff(lastTime, ["hours", "minutes", "seconds"]);
+        time = time.minus({ hours: 6 });
     }
 
     // If the user has a current sesion day
@@ -117,26 +119,31 @@ export const getInfoAll = async (req, res) => {
 export const setActive = async (req, res) => {
     const { id } = req.userToken;
 
-    let user = await User.findById(id).select("-username")
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    if (!user.active) {
-        // If user wants to activate, sets lastTime to now (lastime type is Date)
-        await User.findByIdAndUpdate(id, {
-            active: true,
-            lastTime: DateTime.now().setZone("America/Managua").toJSDate()
+    try {
+        let user = await User.findById(id).select("-username")
+        if (!user) return res.status(404).json({ message: "User not found" });
+    
+        if (!user.active) {
+            // If user wants to activate, sets lastTime to now (lastime type is Date)
+            await User.findByIdAndUpdate(id, {
+                active: true,
+                lastTime: getTimeZoneDate()
+            });
+    
+            return res.status(200).json({ active: true });
+        }
+    
+        const totalTime = await deactivateUser(user);
+        await user.save();
+    
+        res.status(200).json({ 
+            active: false,
+            time: Duration.fromISOTime(totalTime).toObject()
         });
-
-        return res.status(200).json({ active: true });
+    } catch (error) {
+        Cerror(error, nMod.app);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    const totalTime = await deactivateUser(user);
-    await user.save();
-
-    res.status(200).json({ 
-        active: false,
-        time: Duration.fromISOTime(totalTime).toObject()
-     });
 }
 
 /**
@@ -145,19 +152,23 @@ export const setActive = async (req, res) => {
  * @returns 
  */
 export async function deactivateUser(user, dateNow = DateTime.now().setZone("America/Managua")) {
-    const lastTime = DateTime.fromJSDate(user.lastTime).setZone("America/Managua");
+    const lastTime = DateTime.fromJSDate(new Date(user.lastTime)).toUTC();
 
     // Calculate the time the user has been active
-    // user.lastTime is the last time he was active, Example: ("2024-01-27T06:23:06.638Z")
+    // user.lastTime is the last time he was active, Example: ("2024-01-27T06:23:06.000Z")
     let timeActive = dateNow.diff(lastTime, ["hours", "minutes", "seconds"]);
+    // Rest 6 hours to the timeActive, because the timeActive is in UTC
+    timeActive = timeActive.minus({ hours: 6 });
+
     let sesionDay = null
     const timeActivoISO = timeActive.toISOTime({ suppressMilliseconds: true });
+    if (!timeActivoISO) throw new Error("Error getting timeActive.toISOTime");
     
     // Check if he has a sesion day
     if (!user.currentSesionDay) {
         // If he doesn't have a sesion day, create one
         sesionDay = await new SesionDay({
-            date: dateNow.toJSDate(),
+            date: getTimeZoneDate(),
             time: timeActivoISO,
             user: user._id
         }).save();
@@ -176,7 +187,7 @@ export async function deactivateUser(user, dateNow = DateTime.now().setZone("Ame
     }
 
     // Create a new sesion if the user has been active for more than 30 minutes
-    const minSesionTime = 1;
+    const minSesionTime = 30;
     const timeActiveMinutes = timeActive.as("minutes").toFixed(0);
 
     if (timeActiveMinutes >= minSesionTime) {

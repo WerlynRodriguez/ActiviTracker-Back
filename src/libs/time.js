@@ -22,3 +22,42 @@ export function secondsToTimeClient(seconds) {
 export function isSameDay(date1, date2 = getDateTZ()) {
     return getDateISO(date1) === getDateISO(date2);
 }
+
+/**
+ * MongoDb doesnt store timezone, so we need to convert the date to the objetive timezone.
+ */
+export function getTimeZoneDate(){
+    // This way is a little bit dumb, but it works in any browser in any timezone
+    // always return the date in the objective timezone
+
+    const dateNow = new Date();
+    const options = {
+        timeZone: "America/Managua",
+        hour12: false,
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+    };
+
+    const formattedDate = dateNow.toLocaleString("es-ES", options);
+
+    const [date, time] = formattedDate.split(", ");
+    const [day, month, year] = date.split("/");
+    const [hours, minutes, seconds] = time.split(":");
+
+    const currentTime = new Date(
+        Date.UTC(
+            year,
+            month - 1,
+            day,
+            hours,
+            minutes,
+            seconds
+        )
+    );
+
+    return currentTime;
+}
