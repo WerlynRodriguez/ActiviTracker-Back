@@ -11,8 +11,7 @@ export const desactivateUsers_job = async (req, res) => {
 
     if (pass !== process.env.JOB_PASS) {
         Cerror(new Error('Unauthorized'), nMod.job);
-        res.status(401).json({ message: "Unauthorized" });
-        return;
+        return res.status(401).json({ message: "Unauthorized" });
     }
 
     Cinfo('Cleaning active users', nMod.job);

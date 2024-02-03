@@ -121,7 +121,7 @@ export const setActive = async (req, res) => {
 
     // If the time is 11:59 throw an error
     const dateNow = getTimeZoneDate()
-    if (dateNow.getHours() === 11 && dateNow.getMinutes() === 59) {
+    if (dateNow.getHours() === 11 && dateNow.getMinutes() >= 50) {
         return res.status(403).json({ message: "Sorry, maintenance time" });
     }
 
