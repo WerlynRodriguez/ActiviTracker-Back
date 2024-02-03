@@ -13,7 +13,7 @@ app.use(Cors({
     credentials: true,
     // two origins are allowed to access the server (Dev testing)
     origin: [
-        "https://activi-tracker.vercel.app", 
+        "https://activitracker.onrender.com", 
         "https://activitracker-cronjob.vercel.app/"
     ]
 }));
