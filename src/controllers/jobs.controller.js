@@ -25,7 +25,7 @@ export const desactivateUsers_job = async (req, res) => {
         // Iterate users
         for (const user of users) {
             if (user.active) {
-                await deactivateUser(user._id, user);
+                await deactivateUser(user);
             }
 
             // set currentSesionDay to null and lastTime to null
